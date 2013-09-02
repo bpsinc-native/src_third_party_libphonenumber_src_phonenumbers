@@ -15,28 +15,28 @@
 // Utility for international short phone numbers, such as short codes and
 // emergency numbers. Note most commercial short numbers are not handled here,
 // but by the phonenumberutil.
-//
-// Author: David Yonge-Mallo
-//
-// This class is deprecated. Users should migrate to ShortNumberInfo instead for
-// this information.
 
-#ifndef I18N_PHONENUMBERS_SHORTNUMBERUTIL_H_
-#define I18N_PHONENUMBERS_SHORTNUMBERUTIL_H_
+#ifndef I18N_PHONENUMBERS_SHORTNUMBERINFO_H_
+#define I18N_PHONENUMBERS_SHORTNUMBERINFO_H_
 
+#include <map>
 #include <string>
 
 #include "phonenumbers/base/basictypes.h"
+#include "phonenumbers/base/memory/scoped_ptr.h"
+#include "phonenumbers/phonemetadata.pb.h"
 
 namespace i18n {
 namespace phonenumbers {
 
+using std::map;
 using std::string;
 
-// Deprecated - use ShortNumberInfo instead.
-class ShortNumberUtil {
+class PhoneNumberUtil;
+
+class ShortNumberInfo {
  public:
-  ShortNumberUtil();
+  ShortNumberInfo();
 
   // Returns true if the number might be used to connect to an emergency service
   // in the given region.
@@ -56,10 +56,23 @@ class ShortNumberUtil {
                          const string& region_code) const;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(ShortNumberUtil);
+  const PhoneNumberUtil& phone_util_;
+
+  // A mapping from a RegionCode to the PhoneMetadata for that region.
+  scoped_ptr<map<string, PhoneMetadata> >
+      region_to_short_metadata_map_;
+
+  const i18n::phonenumbers::PhoneMetadata* GetMetadataForRegion(
+      const string& region_code) const;
+
+  bool MatchesEmergencyNumberHelper(const string& number,
+                                    const string& region_code,
+                                    bool allow_prefix_match) const;
+
+  DISALLOW_COPY_AND_ASSIGN(ShortNumberInfo);
 };
 
 }  // namespace phonenumbers
 }  // namespace i18n
 
-#endif  // I18N_PHONENUMBERS_SHORTNUMBERUTIL_H_
+#endif  // I18N_PHONENUMBERS_SHORTNUMBERINFO_H_
